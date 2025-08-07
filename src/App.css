@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+body{
+  font-family: 'Roboto', 'NotoSansThai';
+  margin: 0px !important;
+  padding: 0px !important;
+}

@@ -1,0 +1,31 @@
+@font-face {
+    font-family: 'NotoSansThai';
+    src: url('../font/NotoSansThai-Light.ttf') format('truetype');
+    font-weight: 300;
+}
+@font-face {
+    font-family: 'NotoSansThai';
+    src: url('../font/NotoSansThai-Regular.ttf') format('truetype');
+    font-weight: 400;
+}
+@font-face {
+    font-family: 'NotoSansThai';
+    src: url('../font/NotoSansThai-Bold.ttf') format('truetype');
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('../font/Roboto-Light.ttf') format('truetype');
+    font-weight: 300;
+}
+@font-face {
+    font-family: 'Roboto';
+    src: url('../font/Roboto-Regular.ttf') format('truetype');
+    font-weight: 400;
+}
+@font-face {
+    font-family: 'Roboto';
+    src: url('../font/Roboto-Bold.ttf') format('truetype');
+    font-weight: 700;
+}
