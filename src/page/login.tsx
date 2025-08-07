@@ -3,6 +3,8 @@ OutlinedInput, IconButton, FormHelperText, Button,  } from "@mui/material";
 import { AccountCircle, VisibilityOff, Visibility  } from "@mui/icons-material";
 import { useState, type FormEvent } from "react";
 
+import Swal from 'sweetalert2'
+
 import { useNavigate } from "react-router-dom";
 
 const Login:React.FC = () => {
@@ -18,6 +20,17 @@ const Login:React.FC = () => {
         username:'',
         password:'',
     })
+
+    const user =[
+        {
+            username:'username1',
+            password:'123'
+        }, 
+        {
+            username:'username2',
+            password:'123'
+        }, 
+    ]
     
     const [showPassword, setShowPassword] = useState(false);
 
@@ -31,9 +44,9 @@ const Login:React.FC = () => {
       event.preventDefault();
     };
 
-    const submit = (e:FormEvent<HTMLFormElement>) => {
+    const submit = async(e:FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        console.log('FORM',form);        
+        console.log('FORM',form);       
         
         const errors = {
             username: form.username.trim() === '',
@@ -44,7 +57,53 @@ const Login:React.FC = () => {
         
         if(errors.username || errors.password) return
 
-        navigate('/home')
+        const checkLogin = user.find (e => 
+            e.username === form.username && e.password === form.password
+          );
+         console.log(checkLogin);
+         
+        if(checkLogin){
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({
+            icon: "success",
+            title: "login"
+            }).finally(()=>{
+                navigate('/home')
+            })
+        }else{
+            setIsError(e=>({
+                ...e,
+                username:true,
+                password:true
+            }))
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({
+            icon: "error",
+            title: "Incorrect username or password."
+            })
+        }
+
+
     }
 
     return(
