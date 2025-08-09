@@ -1,28 +1,34 @@
 import axios from "axios";
 import { useEffect, useState, type FormEvent } from "react";
-import { Box,TextareaAutosize,Button,CircularProgress } from "@mui/material";
+import { Box,TextareaAutosize,Button,CircularProgress,Drawer,Container } from "@mui/material";
+import { HighlightOff } from "@mui/icons-material";
+import Post from "../components/post";
 
 const Home:React.FC = () => {
-    
-    const [comment, setComment] = useState({
-        comment:'',
-        pic:''
-    })
-    const [image, setImage] = useState('')
-    const [loading, setLoading] = useState(false)
 
-    const fetchData = async() =>{     
-        setComment(()=>({
-            comment:'',
-            pic:''
-        }))           
+    interface commentType {
+        pic:string,
+        comment:string[],
+    }
+    const [comment, setComment] = useState<commentType[]>([])
+    const [image, setImage] = useState<string>('')
+    const [loading, setLoading] = useState<boolean>(false)
+
+    const [textComment, setTextComment] = useState<string>('')
+
+    const [open, setOpen] = useState<boolean>(false);
+
+    const toggleDrawer = (newOpen: boolean) => () => {
+        console.log('open');
+        
+      setOpen(newOpen);
+    };
+
+    const fetchData = async() =>{              
         setLoading(true)
+        setTextComment('')
         const res = await axios.get('https://cataas.com/cat')      
-        setImage(res.data.url)   
-        setComment((prev)=> ({
-            ...prev,
-            pic:res.data.url
-        }))     
+        setImage(res.data.url)           
         
         setTimeout(() => {
             setLoading(false)      
@@ -31,17 +37,70 @@ const Home:React.FC = () => {
     }
 
     const submit = (e:FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        console.log(comment);
-        setComment((prev)=>({
-            ...prev,
-        }))
+        e.preventDefault()       
+        console.log(textComment);  
+        const test = comment.find(e=> e.pic === image)
+        console.log('test=> ',test); 
+        if(test != undefined){
+            setComment(prev=> {
+                const update = [...prev]
+                
+                update[update.length - 1].comment.push(textComment)
+                return update
+            })
+        }else{
+            setComment(prev=> {
+                const update = [...prev]
+                update.push({ pic: image, comment: [textComment] });                
+                return update
+            })  
+        }        
+        console.log('COMMENT=> ',comment);
         
     }
 
     useEffect(() => {
+        console.log('Comment updated:', comment);
+    }, [comment]);
+
+    useEffect(() => {
       fetchData()    
     }, [])
+
+    const DrawerList = (
+        <>
+            <Box
+                sx={{
+                    position:"fixed",
+                    zIndex:1300,
+                    top:20,
+                    right:20,
+                    cursor:'pointer'
+                }}                
+            >
+                <Button >
+                    <HighlightOff sx={{ color: 'black', fontSize: 40, zIndex: 1400 }}  onClick={toggleDrawer(false)}/>
+                </Button>
+            </Box>
+            <Box sx={{width:'100vw',height:'100vh'}} role="slider" >
+                <Box className='w-[100%] h-[100%] bg-white p-5'>
+                    <Container>
+                        <Box className="flex flex-wrap">
+                            {
+                                comment.map((e,i)=>(
+                                    <Post 
+                                        key={i}
+                                        comment={e.comment}
+                                        pic={e.pic}
+                                    />
+                                ))
+                            }
+                        </Box>
+                    </Container>
+                </Box>
+            </Box>
+        </>
+    );
     
 
     return(
@@ -90,7 +149,8 @@ const Home:React.FC = () => {
                         style={{
                             border:`1px solid #00000061`
                         }}
-                        onChange={e=> setComment(prev=> ({...prev,comment:e.target.value}))}
+                        value={textComment}
+                        onChange={(e) =>setTextComment((e.target.value))}
                     />
 
                     <Button variant="contained" color="success" type="submit" className="mr-3 w-[10%]">
@@ -100,7 +160,6 @@ const Home:React.FC = () => {
                 </Box>
                 <Button 
                     disabled={loading} 
-                    type="submit" 
                     variant="contained" 
                     color="warning" 
                     className="
@@ -108,14 +167,41 @@ const Home:React.FC = () => {
                         md:w-[400px]
                         lg:w-[600px]
                         xl:w-[650px]
-                        2xl:w-[700px]
+                        2xl:w-[700px]                        
                     "
                     onClick={fetchData}
+                    sx={{
+                        padding:'20px 0px 20px 0px'
+                    }}
                     >
                     {loading 
                         ? <CircularProgress size={20} sx={{ color: 'black' }} /> 
                         : 'Random'}
                 </Button>
+
+                {
+                    comment.length > 0 && (
+                        <Button                                         
+                            variant="contained" 
+                            color="secondary" 
+                            className="
+                                w-[300px]
+                                md:w-[400px]
+                                lg:w-[600px]
+                                xl:w-[650px]
+                                2xl:w-[700px]                        
+                            "
+                            onClick={()=>(
+                                setOpen(true)
+                            )}
+                        >
+                            History    
+                        </Button>
+                    )
+                }
+                    <Drawer open={open} onClose={toggleDrawer(false)}>
+                        {DrawerList}
+                    </Drawer>
             </Box>
         </>
     )
